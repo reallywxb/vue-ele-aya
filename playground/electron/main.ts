@@ -42,24 +42,24 @@ async function createWindow() {
   win = new BrowserWindow({
     autoHideMenuBar: true,
     frame: false,
-    height: 900,
+    height: 768,
     icon: path.join(process.env.VITE_PUBLIC as string, 'favicon.ico'),
     movable: true,
     show: false,
-    title: 'Main window',
+    title: 'Ayasa',
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
       preload,
       webSecurity: true,
     },
-    width: 1440,
+    width: 1024,
   });
 
   // 监听窗口准备好显示的事件
-  win.once('ready-to-show', () => {
-    win?.maximize(); // 最大化窗口
-    win?.show(); // 显示窗口
+  win?.on('ready-to-show', () => {
+    // win?.maximize(); // 注释掉这行，取消默认全屏
+    win?.show();
   });
 
   win.on('maximize', () => {

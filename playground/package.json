@@ -10,8 +10,8 @@
   },
   "license": "MIT",
   "author": {
-    "name": "vben",
-    "email": "ann.vben@gmail.com",
+    "name": "wxb",
+    "email": "820498723@qq.com",
     "url": "https://github.com/anncwb"
   },
   "type": "module",
@@ -35,11 +35,11 @@
     "#/*": "./src/*"
   },
   "build": {
-    "productName": "VbenAdminPlayground",
+    "productName": "Ayasa",
     "appId": "pro.vben.playground",
     "copyright": "vben.pro © 2025",
     "compression": "maximum",
-    "artifactName": "${productName}-v${version}-${platform}-${arch}.${ext}",
+    "artifactName": "Ayasa",
     "asar": true,
     "directories": {
       "output": "dist-electron/release"
@@ -58,7 +58,7 @@
       "deleteAppDataOnUninstall": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "VbenAdmin"
+      "shortcutName": "Ayasa"
     },
     "win": {
       "icon": "./electron/logo/logo_256.ico",
