@@ -151,3 +151,83 @@ pnpm build
 ## 许可证
 
 [MIT © Vben-2020](./LICENSE)
+
+## 项目概览
+
+- Monorepo 管理：使用 pnpm 工作空间，根目录有 pnpm-workspace.yaml ，统一依赖与构建。
+- 应用分布：
+  - apps/web-ele 、 apps/web-antd 、 apps/web-naive ：三套 UI 技术栈的 Web 应用。
+  - playground ：演示应用，内置 Electron 桌面集成，是你要运行和打包 Electron 的地方。
+  - apps/backend-mock ：Nitro Mock 服务，用于开发环境接口模拟（端口 5320 ）。
+- 内部工具与配置：
+  - internal/vite-config ：自研 Vite 配置封装，包含 Electron、PWA、Mock、压缩等插件开关。
+  - packages/\* ：共享组件、样式、工具、类型等模块。
+  - docs ：项目文档站点。
+- 依赖与引擎：
+
+  - 根 package.json 指定 node >= 20.10.0 ， pnpm >= 9.12.0 ； packageManager 为 pnpm@10.10.0 。运行准备（Windows10）
+
+- 安装与初始化
+  - 安装 Node 20+ 和 PowerShell（默认即可）。
+  - 安装并激活 pnpm （推荐用 corepack）：
+    - npm i -g corepack
+    - corepack enable
+  - 在项目根目录安装依赖： pnpm install
+- 如果你在国内网络环境，可设置镜像变量以更稳：
+
+  - 可在系统环境变量加： COREPACK_NPM_REGISTRY=https://registry.npmmirror.com 如何运行（Web 与 Electron）
+
+- 方式一：交互式选择应用运行（推荐新手）
+  - 在根目录执行： pnpm dev
+  - 选择需要的应用，例如 @vben/playground （Electron 开发）或 @vben/web-ele （Web）。
+- 方式二：直接运行指定应用
+
+  - 运行 Element Plus Web 应用： pnpm run dev:ele ，默认端口 http://localhost:5777 （见 apps/web-ele/.env.development ）。
+  - 运行 Ant Design Vue Web 应用： pnpm run dev:antd ，默认端口 http://localhost:5666 。
+  - 运行 Naive UI Web 应用： pnpm run dev:naive ，默认端口 http://localhost:5888 。
+  - 运行 Electron（playground）： pnpm run dev:play 。- playground 的开发端口为 http://localhost:5555 （见 playground/.env.development ）。- internal/vite-config 已开启 Electron 插件（ vite-plugin-electron/simple ），运行 Vite 时会同时构建主进程与预加载并启动 Electron。- 开发模式下已注册快捷键： Ctrl+Shift+I 打开调试工具、 Ctrl+R/F5 刷新、 Ctrl+Shift+R/F5 强刷。Electron 打包
+
+- 打包命令（两种等效方式，选其一）：
+  - 在根目录： pnpm run build:play （等价于过滤执行 @vben/playground 的构建）。
+  - 进入 playground 目录： pnpm run build 。
+- 构建流程与产物
+  - 渲染进程：由 Vite 产出到 playground/dist 。
+  - 主进程与预加载：构建到 playground/dist-electron/main 与 playground/dist-electron/preload 。
+  - 安装包与可执行文件： electron-builder 根据 playground/package.json 的 build 字段配置，输出到 playground/dist-electron/release 。
+    - Windows 目标为 nsis ，产物名形如： Ayasa-<version>-x64.exe （受 artifactName 配置 ${productName}-${version}-${arch}.${ext} 影响）。
+- 关键打包配置位置
+  - playground/package.json 内的 "build" 字段：
+    - productName 、 appId 、 icon 、 artifactName 、 directories.output 等自定义。
+    - 已设置国内镜像： electronDownload.mirror: https://npm.taobao.org/mirrors/electron/ ，提升 Electron 二进制下载成功率。
+- 常见注意事项
+
+  - 如果构建阶段下载 Electron 慢或失败，可在 PowerShell 中额外设置： $env:ELECTRON_MIRROR = "https://npm.taobao.org/mirrors/electron/" ，然后重试打包。
+  - 不同应用端口在各自 .env.development 中定义， playground 为 5555 ；代理 /api 指向本地 Mock 服务 http://localhost:5320/api ，由 vite.config.mts 的 server.proxy 控制。
+  - 若需要修改窗口行为或菜单、快捷键，请调整 playground/electron/main.ts 与 playground/electron/preload.ts 。目录与关键文件
+
+- playground/vite.config.mts ： application.electron: true ，启用 Electron 插件与服务代理。
+- playground/electron/main.ts ：Electron 主进程入口，窗口创建、快捷键注册、渲染加载逻辑等。
+- playground/electron/preload.ts ：预加载脚本，通过 contextBridge 向渲染进程暴露安全的 IPC API。
+- playground/.env.development ：开发端口、Mock 开关、注入 Loading 等。
+- apps/web-ele/.env.development ：Element Plus Web 应用端口与环境。
+- internal/vite-config/src/plugins/electron.ts ：封装 vite-plugin-electron/simple 的主/预加载构建与调试配置。建议的操作顺序
+
+- 在根目录执行：
+  - pnpm install
+  - pnpm run dev:play （开发 Electron）
+  - pnpm run dev:ele （开发 Web Element Plus）
+  - pnpm run build:play （打包 Electron，产物在 playground/dist-electron/release ）如果你需要把产品名、图标、安装器行为（如是否一键安装）改为你自己的需求，修改 playground/package.json 的 "build" 配置即可。需要我帮你定制打包配置或脚本，我可以根据你的目标产物和公司签名流程进行完善。
+
+## WXB--运行打包
+
+pnpm install pnpm run dev:play
+
+- 运行 Element Plus Web 应用： pnpm run dev:ele ，默认端口 http://localhost:5777 （见 apps/web-ele/.env.development ）。
+- 运行 Ant Design Vue Web 应用： pnpm run dev:antd ，默认端口 http://localhost:5666 。
+- 运行 Naive UI Web 应用： pnpm run dev:naive ，默认端口 http://localhost:5888 。
+- 运行 Electron（playground）： pnpm run dev:play 。
+- playground 的开发端口为 http://localhost:5555 （见 playground/.env.development ）。
+- internal/vite-config 已开启 Electron 插件（ vite-plugin-electron/simple ），运行 Vite 时会同时构建主进程与预加载并启动 Electron。
+- 开发模式下已注册快捷键： Ctrl+Shift+I 打开调试工具、 Ctrl+R/F5 刷新、 Ctrl+Shift+R/F5 强刷。pnpm run build:play
+
+taskkill /F /IM Ayasa.exe taskkill /F /IM electron.exe pnpm clean pnpm -F @vben/playground exec electron-builder --dir pnpm -F @vben/playground exec electron-builder --win --x64
